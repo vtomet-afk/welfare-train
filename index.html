@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายชื่อสถานีรถไฟที่รองรับแอปฯ เป๋าตัง (สิทธิสวัสดิการแห่งรัฐ)</title>
+    
+    <!-- Tailwind CSS for rapid UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Prompt for Modern Thai Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom Styles to enforce font and smooth scrolling */
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f8fafc; /* Slate-50 background */
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Smooth transition for search filtering */
+        .card-enter {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeUp 0.3s forwards ease-out;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* SRT gradient theme */
+        .bg-srt-gradient {
+            background: linear-gradient(135deg, #a51a29 0%, #5a0e15 100%);
+        }
+        
+        /* SRT Tag styles */
+        .tag-srt {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+        .tag-srt:hover {
+            background-color: #fee2e2;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header Section -->
+    <header class="bg-srt-gradient text-white pt-12 pb-24 px-4 relative overflow-hidden rounded-b-[2rem] shadow-lg">
+        <!-- Decorative Background Circles -->
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-5 rounded-full translate-x-1/3 translate-y-1/3"></div>
+
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center justify-center w-32 h-32 mb-4">
+                <img src="Artboard 1@2x.png" alt="SRT Logo" class="w-full h-full object-contain">
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold mb-3 tracking-tight">
+                จุดจำหน่ายตั๋วรถไฟ <br class="md:hidden"/> สิทธิสวัสดิการแห่งรัฐ
+            </h1>
+            <p class="text-red-100 text-sm md:text-base font-light max-w-xl mx-auto">
+                ตรวจสอบรายชื่อสถานีรถไฟที่รองรับการชำระค่าตั๋วโดยสาร ผ่านแอปพลิเคชัน <span class="font-medium text-white">"เป๋าตัง"</span> ได้ที่นี่
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-12 relative z-20 pb-16">
+        
+        <!-- Search Bar -->
+        <div class="bg-white rounded-2xl shadow-lg p-2 max-w-2xl mx-auto flex items-center border border-gray-100 mb-10 transition-all duration-300 focus-within:shadow-xl focus-within:border-red-300">
+            <div class="pl-4 text-gray-400">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <input type="text" id="searchInput" 
+                class="w-full py-3 px-4 outline-none text-gray-700 bg-transparent placeholder-gray-400 text-base" 
+                placeholder="ค้นหาชื่อ 'สถานี' หรือ 'จังหวัด'..."
+                autocomplete="off">
+            <button id="clearBtn" class="pr-4 text-gray-300 hover:text-gray-500 transition-colors hidden">
+                <i class="fa-solid fa-circle-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="flex justify-between items-end mb-6">
+            <h2 class="text-xl font-semibold text-gray-700">รายชื่อสถานีแบ่งตามจังหวัด</h2>
+            <span id="resultCount" class="text-sm text-gray-500 bg-gray-200 px-3 py-1 rounded-full font-medium"></span>
+        </div>
+
+        <!-- Stations Grid Container -->
+        <div id="stationsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Cards will be injected here via JavaScript -->
+        </div>
+
+        <!-- Empty State (Hidden by default) -->
+    <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center text-gray-300 mb-4">
+            <i class="fa-solid fa-magnifying-glass-location text-4xl"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-700 mb-2">ไม่พบข้อมูลที่คุณค้นหา</h3>
+        <p class="text-gray-500">ลองตรวจสอบการสะกดคำ หรือค้นหาด้วยชื่อจังหวัด/สถานีอื่น</p>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-white border-t border-gray-200 py-8 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
+        <p class="font-medium text-gray-600">กองจัดการเดินรถเขต 3 การรถไฟแห่งประเทศไทย</p>
+        <p class="mt-1 text-xs text-gray-500">สอบถามข้อมูลเพิ่มเติม สายด่วนการรถไฟฯ โทร. <span class="font-semibold text-red-700">1690</span></p>
+    </div>
+</footer>
+
+<script>
+    // Raw data mapped into an array of objects grouped by Province
+        const railwayData = [
+            {
+                province: "กรุงเทพมหานคร",
+                stations: ["กรุงเทพฯ", "กรุงเทพอภิวัฒน์", "ชุมทางบางซื่อ", "ดอนเมือง", "ธนบุรี", "บางบำหรุ", "ชุมทางตลิ่งชัน", "มักกะสัน", "คลองตัน", "หัวหมาก", "หัวตะเข้", "วงเวียนใหญ่"]
+            },
+            { province: "ปทุมธานี", stations: ["รังสิต"] },
+            { province: "พระนครศรีอยุธยา", stations: ["บางปะอิน", "อยุธยา", "ชุมทางบ้านภาชี", "ท่าเรือ"] },
+            { province: "สระบุรี", stations: ["บ้านหมอ", "หนองโดน", "สระบุรี", "ชุมทางแก่งคอย", "มวกเหล็ก"] },
+            { province: "ลพบุรี", stations: ["ลพบุรี", "ลพบุรี 2", "บ้านหมี่"] },
+            { province: "นครสวรรค์", stations: ["จันเสน", "ช่องแค", "บ้านตาคลี", "นครสวรรค์", "ชุมแสง"] },
+            { province: "พิจิตร", stations: ["บางมูลนาก", "ตะพานหิน", "พิจิตร"] },
+            { province: "พิษณุโลก", stations: ["บางกระทุ่ม", "พิษณุโลก"] },
+            { province: "อุตรดิตถ์", stations: ["อุตรดิตถ์", "ศิลาอาสน์"] },
+            { province: "แพร่", stations: ["เด่นชัย", "บ้านปิน"] },
+            { province: "ลำปาง", stations: ["นครลำปาง"] },
+            { province: "ลำพูน", stations: ["ลำพูน"] },
+            { province: "เชียงใหม่", stations: ["เชียงใหม่"] },
+            { province: "นครราชสีมา", stations: ["ปากช่อง", "สีคิ้ว", "นครราชสีมา", "ชุมทางถนนจิระ", "ชุมทางบัวใหญ่", "จักราช", "ห้วยแถลง"] },
+            { province: "ขอนแก่น", stations: ["เมืองพล", "บ้านไผ่", "ขอนแก่น", "น้ำพอง"] },
+            { province: "อุดรธานี", stations: ["กุมภวาปี", "อุดรธานี"] },
+            { province: "หนองคาย", stations: ["หนองคาย"] },
+            { province: "บุรีรัมย์", stations: ["ลำปลายมาศ", "บุรีรัมย์", "ห้วยราช", "กระสัง"] },
+            { province: "สุรินทร์", stations: ["สุรินทร์", "ศีขรภูมิ", "สำโรงทาบ"] },
+            { province: "ศรีสะเกษ", stations: ["อุทุมพรพิสัย", "ศรีสะเกษ", "กันทรารมย์"] },
+            { province: "อุบลราชธานี", stations: ["อุบลราชธานี"] },
+            { province: "นครปฐม", stations: ["ศาลายา", "นครปฐม"] },
+            { province: "ราชบุรี", stations: ["ชุมทางหนองปลาดุก", "บ้านโป่ง", "โพธาราม", "ราชบุรี"] },
+            { province: "กาญจนบุรี", stations: ["กาญจนบุรี"] },
+            { province: "เพชรบุรี", stations: ["เพชรบุรี", "ชะอำ"] },
+            { province: "ประจวบคีรีขันธ์", stations: ["หัวหิน", "ประจวบคีรีขันธ์", "บางสะพานใหญ่"] },
+            { province: "ชุมพร", stations: ["มาบอำมฤต", "ปะทิว", "ชุมพร", "สวี", "หลังสวน"] },
+            { province: "สุราษฎร์ธานี", stations: ["ท่าชนะ", "ไชยา", "สุราษฎร์ธานี", "บ้านนา", "นาสาร", "บ้านส้อง"] },
+            { province: "นครศรีธรรมราช", stations: ["ชุมทางทุ่งสง", "นครศรีธรรมราช", "ชะอวด"] },
+            { province: "ตรัง", stations: ["ห้วยยอด", "ตรัง"] },
+            { province: "พัทลุง", stations: ["พัทลุง"] },
+            { province: "สงขลา", stations: ["ชุมทางหาดใหญ่", "ปาดังเบซาร์", "จะนะ", "เทพา"] },
+            { province: "ปัตตานี", stations: ["ปัตตานี"] },
+            { province: "ยะลา", stations: ["ยะลา", "รามัน"] },
+            { province: "นราธิวาส", stations: ["รือเสาะ", "ตันหยงมัส", "สุไหงปาดี", "สุไหงโก-ลก"] },
+            { province: "ฉะเชิงเทรา", stations: ["ชุมทางฉะเชิงเทรา"] },
+            { province: "ชลบุรี", stations: ["ชลบุรี", "ชุมทางศรีราชา", "บางละมุง", "พัทยา"] },
+            { province: "ปราจีนบุรี", stations: ["บ้านสร้าง", "ปราจีนบุรี", "กบินทร์บุรี"] },
+            { province: "สระแก้ว", stations: ["อรัญประเทศ"] },
+            { province: "สมุทรสาคร", stations: ["มหาชัย"] }
+        ];
+
+        const stationsGrid = document.getElementById('stationsGrid');
+        const searchInput = document.getElementById('searchInput');
+        const emptyState = document.getElementById('emptyState');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultCount = document.getElementById('resultCount');
+
+        // Function to create and render HTML cards
+        function renderCards(data) {
+            stationsGrid.innerHTML = '';
+            
+            if (data.length === 0) {
+                stationsGrid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                resultCount.textContent = 'พบ 0 จังหวัด';
+                return;
+            }
+
+            stationsGrid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+            
+            let totalProvinces = data.length;
+            let totalStations = data.reduce((sum, item) => sum + item.stations.length, 0);
+            resultCount.textContent = `${totalProvinces} จังหวัด (${totalStations} สถานี)`;
+
+            data.forEach((item, index) => {
+                // Determine layout rules to stagger animations slightly
+                let animationDelay = (index % 10) * 0.05;
+
+                // Create Card element
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm hover:shadow-md border border-gray-100 transition-shadow duration-300 overflow-hidden card-enter flex flex-col h-full`;
+                card.style.animationDelay = `${animationDelay}s`;
+
+                // Card Header (Province Name)
+                const header = document.createElement('div');
+                header.className = 'bg-gray-50/80 px-5 py-4 border-b border-gray-100 flex items-center gap-2';
+                header.innerHTML = `
+                    <i class="fa-solid fa-location-dot text-red-700 text-sm"></i>
+                    <h3 class="font-medium text-gray-800 text-lg">${item.province}</h3>
+                `;
+
+                // Card Body (Station Tags)
+                const body = document.createElement('div');
+                body.className = 'p-5 flex-grow';
+                
+                const tagContainer = document.createElement('div');
+                tagContainer.className = 'flex flex-wrap gap-2';
+
+                item.stations.forEach(station => {
+                    const tag = document.createElement('span');
+                    // Styling for individual station tags - SRT Red theme
+                    tag.className = 'tag-srt inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium border transition-colors duration-200 cursor-default';
+                    tag.innerHTML = `<i class="fa-solid fa-ticket text-[10px] mr-1.5 opacity-60"></i> ${station}`;
+                    tagContainer.appendChild(tag);
+                });
+
+                body.appendChild(tagContainer);
+                card.appendChild(header);
+                card.appendChild(body);
+                stationsGrid.appendChild(card);
+            });
+        }
+
+        // Search & Filter Logic
+        function handleSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            
+            // Toggle clear button visibility
+            if (query.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
+            const filteredData = railwayData.map(provinceItem => {
+                // If province name matches query, return all its stations
+                if (provinceItem.province.toLowerCase().includes(query)) {
+                    return provinceItem;
+                }
+
+                // Otherwise, filter the stations array inside the province
+                const filteredStations = provinceItem.stations.filter(station => 
+                    station.toLowerCase().includes(query)
+                );
+
+                // If any station matches, return province object with ONLY matching stations
+                if (filteredStations.length > 0) {
+                    return {
+                        province: provinceItem.province,
+                        stations: filteredStations
+                    };
+                }
+
+                return null;
+            }).filter(item => item !== null); // Remove nulls (no match found)
+
+            renderCards(filteredData);
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', handleSearch);
+        
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            handleSearch();
+            searchInput.focus();
+        });
+
+        // Initialize Render on Page Load
+        window.onload = () => {
+            renderCards(railwayData);
+        };
+    </script>
+</body>
+</html>
